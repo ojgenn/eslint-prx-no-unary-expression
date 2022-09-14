@@ -1,9 +1,12 @@
 "use strict";
 const experimental_utils_1 = require("@typescript-eslint/experimental-utils");
 const typescript_1 = require("typescript");
+const fix_1 = require("../fix");
 module.exports = {
     name: 'no-unary-expression',
     meta: {
+        type: 'problem',
+        fixable: 'code',
         docs: {
             description: 'No unary expression',
             recommended: 'error',
@@ -49,6 +52,10 @@ module.exports = {
                         context.report({
                             messageId: 'noUnaryExpression',
                             node,
+                            fix: (fixer) => fix_1.unaryExpressionFixer(
+                            // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+                            // @ts-ignore
+                            node, fixer),
                         });
                     }
                 }

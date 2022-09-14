@@ -1,10 +1,14 @@
 import { ESLintUtils, TSESTree } from '@typescript-eslint/experimental-utils';
 import * as ts from 'typescript';
 import { Node, SyntaxKind, Type, TypeChecker } from 'typescript';
+import { unaryExpressionFixer } from '../fix';
+import { RuleFixer } from '@typescript-eslint/experimental-utils/dist/ts-eslint';
 
 export = {
   name: 'no-unary-expression',
   meta: {
+    type: 'problem',
+    fixable: 'code',
     docs: {
       description: 'No unary expression',
       recommended: 'error',
@@ -69,6 +73,13 @@ export = {
             context.report({
               messageId: 'noUnaryExpression',
               node,
+              fix: (fixer: RuleFixer) =>
+                unaryExpressionFixer(
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+                  // @ts-ignore
+                  node,
+                  fixer,
+                ),
             });
           }
         }
