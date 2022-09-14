@@ -33,6 +33,11 @@ ruleTester.run('no-unary-expression', rule, {
       `,
     },
     {
+      code: `
+            typeof x === 'number' ? x : Infinity
+      `,
+    },
+    {
       code: `const b = [1,2,3]; let a = b.find(index => index === 7); if (a !== null && a !== undefined) {}`,
     },
     {
@@ -49,6 +54,12 @@ ruleTester.run('no-unary-expression', rule, {
     {
       code: `
       let b: NotSupernumber[] = [{ str: 'test' }]; let a = b.find(item => item.str === 'test1'); if (!a) {}
+      `,
+    },
+    {
+      code: `
+      const a = true;
+      if (!a) {}
       `,
     },
   ],
@@ -159,6 +170,19 @@ ruleTester.run('no-unary-expression', rule, {
       type unit = number;
       let a: unit | null = Math.random() > 0.5 ? 1 : null;
       if (!a) {}
+      `,
+      errors: [
+        {
+          messageId: 'noUnaryExpression',
+        },
+      ],
+    },
+    {
+      code: `
+      const c: {b: number | undefined} = {b: 5};
+        const a = [1,2,3];
+        c.b = a.find(item => item === 0);
+        if (!c.b) {}
       `,
       errors: [
         {

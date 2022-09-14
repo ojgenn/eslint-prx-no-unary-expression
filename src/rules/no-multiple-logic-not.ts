@@ -3,15 +3,15 @@ import * as ts from 'typescript';
 import { Node, SyntaxKind, Type, TypeChecker } from 'typescript';
 
 export = {
-  name: 'no-unary-expression',
+  name: 'no-multiple-logic-not',
   meta: {
     docs: {
-      description: 'No unary expression',
+      description: 'No Multiple Logic Not',
       recommended: 'error',
       category: 'Possible Errors',
     },
     messages: {
-      noUnaryExpression: 'Use value !== null or value !== undefined etc',
+      noMultipleLogicNot: "Don't use multiple logic NOT",
     },
     schema: [],
   },
@@ -36,23 +36,39 @@ export = {
       return getConstrainedTypeAtLocation(checker, tsNode);
     }
 
+    function findFirstNonBoolean(node: TSESTree.Node): any {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
+      const { kind, types } = checker.typeToTypeNode(getNodeType(node));
+//    eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
+      if (kind === SyntaxKind.BooleanKeyword && node.operator === '!') {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        return findFirstNonBoolean(node.argument);
+      }
+
+      return {kind, types};
+    }
+
     return {
       UnaryExpression(node: TSESTree.UnaryExpression): void {
-        if (node.operator !== '!') {
-          return;
-        }
         // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
         // @ts-ignore
-        const { kind, types } = checker.typeToTypeNode(
-          getNodeType(node.argument),
-        );
+        const parent = checker.typeToTypeNode(getNodeType(node.parent));
+        const child = checker.typeToTypeNode(getNodeType(node.argument));
+        let searchNode;
         // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
         // @ts-ignore
-        if (node.parent.operator === '!') {
-          return;
+        // eslint-disable-next-line prettier/prettier
+        if ((parent?.kind === SyntaxKind.BooleanKeyword && node.parent?.operator === '!') || (child?.kind === SyntaxKind.BooleanKeyword && node.argument.operator === '!')) {
+          searchNode = findFirstNonBoolean(node.argument);
         }
-        if (kind === SyntaxKind.UnionType) {
-          const typesAsSyntaxKind = types.map(
+
+        if (searchNode && searchNode.kind === SyntaxKind.UnionType) {
+          // const sourceCode = context.getSourceCode();
+          // const name = sourceCode.getText(node.argument);
+          const typesAsSyntaxKind = searchNode.types.map(
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (item: { kind: any }) => item.kind,
           );
@@ -75,7 +91,7 @@ export = {
             (hasString && hasUndefined)
           ) {
             context.report({
-              messageId: 'noUnaryExpression',
+              messageId: 'noMultipleLogicNot',
               node,
             });
           }
