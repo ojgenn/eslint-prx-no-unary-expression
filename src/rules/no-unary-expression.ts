@@ -70,6 +70,8 @@ export = {
             (hasString && hasNull) ||
             (hasString && hasUndefined)
           ) {
+            const sourceCode = context.getSourceCode();
+            const name = sourceCode.getText(node.argument);
             context.report({
               messageId: 'noUnaryExpression',
               node,
@@ -79,6 +81,7 @@ export = {
                   // @ts-ignore
                   node,
                   fixer,
+                  name,
                 ),
             });
           }

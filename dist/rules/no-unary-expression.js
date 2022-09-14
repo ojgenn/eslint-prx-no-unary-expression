@@ -49,13 +49,15 @@ module.exports = {
                         (hasNumber && hasNull) ||
                         (hasString && hasNull) ||
                         (hasString && hasUndefined)) {
+                        const sourceCode = context.getSourceCode();
+                        const name = sourceCode.getText(node.argument);
                         context.report({
                             messageId: 'noUnaryExpression',
                             node,
                             fix: (fixer) => fix_1.unaryExpressionFixer(
                             // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
                             // @ts-ignore
-                            node, fixer),
+                            node, fixer, name),
                         });
                     }
                 }

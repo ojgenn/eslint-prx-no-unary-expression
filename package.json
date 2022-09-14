@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-no-unary-expression",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "repository": "git@github.com:ojgenn/eslint-prx-no-unary-expression.git",
   "author": "ojgenn",
   "contributors": [],
